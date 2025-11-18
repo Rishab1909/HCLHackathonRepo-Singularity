@@ -15,6 +15,8 @@ import json
 from typing import List
 from pathlib import Path
 from transformers import GenerationConfig
+from transformers import GenerationConfig
+import torch
 
 # try llama-cpp-python first (for gguf)
 try:
@@ -101,44 +103,42 @@ class LLMGenerator:
                               max_tokens=int(params.get("max_tokens", 512)))
         txt = gen["choices"][0]["text"]
         return txt
+    
+    def generate_hf(self, prompt: str):
+        params = self.llm_params
 
-    from transformers import GenerationConfig
-import torch
-
-def generate_hf(self, prompt: str):
-    params = self.llm_params
-
-    gen_cfg = GenerationConfig(
-        temperature=params.get("temperature", 0.0),
-        top_p=params.get("top_p", 0.95),
-        do_sample=(params.get("temperature", 0.0) > 0),
-        max_new_tokens=params.get("max_tokens", 128),   # REDUCED!
-        repetition_penalty=1.4,                         # FIX REPETITION!
-        pad_token_id=self.tokenizer.eos_token_id
-    )
-
-    # FORCE the model to follow instructions:
-    strict_prompt = (
-        prompt
-        + "\n\nYOUR RESPONSE MUST BE ONE OR TWO SENTENCES ONLY. "
-          "DO NOT ELABORATE. DO NOT ADD NOTES. DO NOT REPEAT. "
-          "DO NOT SAY ANYTHING OUTSIDE THE CONTEXT.\n\n"
-          "FINAL ANSWER:"
-    )
-
-    inputs = self.tokenizer(strict_prompt, return_tensors="pt")
-    device = next(self.model.parameters()).device
-    inputs = {k: v.to(device) for k, v in inputs.items()}
-
-    with torch.no_grad():
-        outputs = self.model.generate(
-            **inputs,
-            generation_config=gen_cfg,
-            eos_token_id=self.tokenizer.eos_token_id
+        gen_cfg = GenerationConfig(
+            temperature=params.get("temperature", 0.0),
+            top_p=params.get("top_p", 0.95),
+            do_sample=(params.get("temperature", 0.0) > 0),
+            max_new_tokens=params.get("max_tokens", 128),   # REDUCED!
+            repetition_penalty=1.4,                         # FIX REPETITION!
+            pad_token_id=self.tokenizer.eos_token_id
         )
 
-    return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # FORCE the model to follow instructions:
+        strict_prompt = (
+            prompt
+            + "\n\nYOUR RESPONSE MUST BE ONE OR TWO SENTENCES ONLY. "
+              "DO NOT ELABORATE. DO NOT ADD NOTES. DO NOT REPEAT. "
+              "DO NOT SAY ANYTHING OUTSIDE THE CONTEXT. KEEP PROPER SPACING.\n\n"
+              "FINAL ANSWER:"
+        )
 
+        inputs = self.tokenizer(strict_prompt, return_tensors="pt")
+        device = next(self.model.parameters()).device
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                generation_config=gen_cfg,
+                eos_token_id=self.tokenizer.eos_token_id
+            ) 
+        
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    
     def answer_query(self, query: str, retrieved: List[dict]):
         prompt = self.build_prompt(query, retrieved)
         if self.mode == "gguf":
@@ -146,6 +146,7 @@ def generate_hf(self, prompt: str):
         else:
             ans = self.generate_hf(prompt)
         return {"answer": ans.strip(), "prompt": prompt, "retrieved": retrieved}
+
 
 if __name__ == "__main__":
     # quick CLI test that expects the Retriever to provide retrieval
