@@ -95,6 +95,9 @@ This happens each time the user asks something.
 
 ## RAG Flowchart
 
+
+![WhatsApp Image 2025-11-18 at 16 25 22](https://github.com/user-attachments/assets/dc4c7bbd-fd6f-40fb-a971-e30a0423f4f5)
+
 ```mermaid
 flowchart TD
 
