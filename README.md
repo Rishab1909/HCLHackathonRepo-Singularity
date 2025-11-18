@@ -40,7 +40,7 @@ The system is divided into two phases:
 
 This phase prepares your knowledge base.
 
-1. Load documents  
+1. Load documents --> convert into one sample.txt file using pypdf library use PdfReader 
 2. Preprocess + Chunk into ~400–800 token segments  
 3. Generate embeddings for each chunk  
 4. Store embeddings in a FAISS index  
@@ -68,9 +68,10 @@ This happens each time the user asks something.
 
 ```
 ├── data/
-│   ├── doc1.txt 
-│   ├── doc2.txt
-│   └── doc3.txt 
+│   ├── doc1.pdf
+│   ├── doc2.pdf
+│   └── doc3.pdf
+│   └── sample.txt  
 │
 ├── models/
 │   └── llama-3.2-3b-instruct.gguf
