@@ -10,7 +10,7 @@ This project implements a local Retrieval-Augmented Generation (RAG) pipeline th
 
 It uses:
 
-- Llama-3.2-3B-Instruct (running locally using llama.cpp)
+- Llama-3.2-3B-Instruct
 - FAISS for vector search
 - Sentence-Transformers for embeddings
 - Your doc(s).txt file as the knowledge base
@@ -98,16 +98,16 @@ This happens each time the user asks something.
 flowchart TD
 
 A[Start: LoadDocument.txt] --> B[1. Preprocessing]
-B --> C[2. Chunking\n400–800 tokens\n100–150 overlap]
+B --> C[2. Chunking\n 400–800 tokens\n 100–150 overlap]
 C --> D[Store chunks_meta.json]
 
-D --> E[3. Embedding\nSentence-Transformers]
+D --> E[3. Embedding\n Sentence-Transformers]
 E --> F[Normalize embedding vectors]
-F --> G[4. Build FAISS Index\nfaiss.index]
+F --> G[4. Build FAISS Index\n faiss.index]
 
 subgraph QueryFlow [Query-Time Pipeline]
     H[User Question] --> I[Embed Query]
-    I --> J[FAISS Search\nTop-k Chunks]
+    I --> J[FAISS Search\n Top-k Chunks]
     J --> K[Build Prompt with Retrieved Context]
     K --> L[Local Llama-3.2-3B-Instruct Inference]
     L --> M[Answer + Citations]
