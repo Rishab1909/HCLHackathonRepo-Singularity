@@ -116,6 +116,13 @@ end
 
 G --> QueryFlow
 M --> N[End]
+
+
+
+
+
+![HCL Diagram (1)](https://github.com/user-attachments/assets/75303032-2398-489b-9921-006328e853af)
+
 ```
 
 ---
