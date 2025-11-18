@@ -98,31 +98,6 @@ This happens each time the user asks something.
 
 ![WhatsApp Image 2025-11-18 at 16 25 22](https://github.com/user-attachments/assets/dc4c7bbd-fd6f-40fb-a971-e30a0423f4f5)
 
-```mermaid
-flowchart TD
-
-A[Start: LoadDocument.txt] --> B[1. Preprocessing]
-B --> C[2. Chunking\n 400–800 tokens\n 100–150 overlap]
-C --> D[Store chunks_meta.json]
-
-D --> E[3. Embedding\n Sentence-Transformers]
-E --> F[Normalize embedding vectors]
-F --> G[4. Build FAISS Index\n faiss.index]
-
-subgraph QueryFlow [Query-Time Pipeline]
-    H[User Question] --> I[Embed Query]
-    I --> J[FAISS Search\n Top-k Chunks]
-    J --> K[Build Prompt with Retrieved Context]
-    K --> L[Local Llama-3.2-3B-Instruct Inference]
-    L --> M[Answer + Citations]
-end
-
-G --> QueryFlow
-M --> N[End]
-```
-
----
-
 # Hallucination Prevention
 
 ## Strict system prompt:
